@@ -1,4 +1,7 @@
+
 import 'package:flutter/material.dart';
+
+import '../models/tarefa_model.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title, required this.subtitulo});
@@ -10,17 +13,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> tarefas = ['Tarefa 1', 'Tarefa 2', 'Tarefa 3'];
-  late TextEditingController controller;
+  List<Tarefa> tarefas = [];
+  late TextEditingController controllerDescricao;
+  late TextEditingController controllerTitulo;
   @override
   void initState() {
-    controller = TextEditingController();
+    controllerTitulo = TextEditingController();
+    controllerDescricao = TextEditingController();
     super.initState();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    controllerTitulo.dispose();
+    controllerDescricao.dispose();
     super.dispose();
   }
 
@@ -30,47 +36,45 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
 
-        title: Row(children: [Text(widget.title), SizedBox(width: 8)]),
+        title: Row(
+          children: [
+            Text(widget.title),
+            SizedBox(width: 8),
+            
+          ],
+        ),
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
-              controller: controller,
+              controller: controllerTitulo,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Digite uma tarefa',
+                labelText: 'Digite uma título para a tarefa',
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
-              controller: controller,
+              controller: controllerDescricao,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Digite uma tarefa',
+                labelText: 'Digite uma Descrição para a tarefa',
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Digite uma tarefa',
-              ),
-            ),
-          ),
+
           Expanded(
             child: ListView.builder(
               itemCount: tarefas.length,
               itemBuilder: (context, index) {
                 return ListTile(
                   leading: Icon(Icons.task),
-                  title: Text(tarefas[index]),
+                  title: Text(tarefas[index].titulo),
+                  subtitle: Text(tarefas[index].descricao),
                   trailing: Icon(Icons.arrow_right_alt_outlined),
                 );
               },
@@ -87,15 +91,26 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _adicionarTarefa() {
-    var tarefaDigigtado = controller.text;
-    if (tarefaDigigtado.trim().isEmpty) {
+    var tituloTarefa = controllerTitulo.text;
+    var descricaoTarefa = controllerDescricao.text;
+
+    if (tituloTarefa.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(" Você precisa digitar uma tarefa! ")),
+        SnackBar(content: Text(" Você precisa digitar um título! ")),
       );
       return;
     }
+    if (descricaoTarefa.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(" Você precisa digitar uma descrição! ")),
+      );
+      return;
+    }
+    var tarefa = Tarefa(descricao: descricaoTarefa, titulo: tituloTarefa);
     setState(() {
-      tarefas.add(tarefaDigigtado);
+      tarefas.add(tarefa);
     });
+    controllerDescricao.clear();
+    controllerTitulo.clear();
   }
 }
