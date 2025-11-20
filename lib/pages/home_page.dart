@@ -15,15 +15,19 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Tarefa> tarefas = [];
 
   bool isLoading = false;
+  
+  get carros => null;
+  
+  VoidCallback? get _adicionarTarefa => null;
 
   @override
   void initState() {
-    _getTarefas();
+    _getCarros();
 
     super.initState();
   }
 
-  Future<void> _getTarefas() async {
+  Future<void> _getCarros() async {
     setState(() {
       isLoading = true;
     });
@@ -34,16 +38,16 @@ class _MyHomePageState extends State<MyHomePage> {
         baseUrl: 'https://6912665e52a60f10c8218aa2.mockapi.io/api/v1',
       ),
     );
-    var response = await dio.get('/tarefa');
+    var response = await dio.get('/carro');
     var listaData = response.data as List;
 
     for (var data in listaData) {
-      var tarefa = Tarefa(
-        titulo: data['titulo'],
-        descricao: data['descricao'],
-        data: '',
+      var carro = Carro(
+        nome: data['nome'],
+        fabricante: data['fabricante'],
+        modelo: data['modelo'],
       );
-      tarefas.add(tarefa);
+      carros.add(carro);
     }
     setState(() {
       isLoading = false;
@@ -76,8 +80,9 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: (context, index) {
                 return ListTile(
                   leading: Icon(Icons.task),
-                  title: Text(tarefas[index].titulo),
-                  subtitle: Text(tarefas[index].descricao),
+                  title: Text(tarefas[index].nome),
+                  subtitle: Text(tarefas[index].fabricante),
+                  trailing: Text(tarefas[index].modelo),
                   trailing: Icon(Icons.arrow_right_alt_outlined),
                 );
               },
@@ -90,58 +95,55 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _adicionarTarefa() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) {
-          return TarefaFormPage();
-        },
-      ),
-    ).then((_) {
-      setState(() {
-        tarefas.clear();
-        _getTarefas();
-      });
+  void _adicionarCarro() {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) {
+              return TarefaFormPage();
+            },
+          ),
+        )
+        .then((_) {
+          setState(() {
+            carros.clear();
+            _getCarros();
+          });
 
-   
-    // }
-    // var tarefa = Tarefa(descricao: descricaoTarefa, titulo: tituloTarefa, data: '');
-    // setState(() {
-    //   tarefas.add(tarefa);
-    // });
-    // controllerDescricao.clear();
-    // controllerTitulo.clear();
-  }
-    );
+          // }
+          // var tarefa = Tarefa(descricao: descricaoTarefa, titulo: tituloTarefa, data: '');
+          // setState(() {
+          //   tarefas.add(tarefa);
+          // });
+          // controllerDescricao.clear();
+          // controllerTitulo.clear();
+        });
   }
 }
 
-class   SubttituloWidget extends StatelessWidget {
+class   Carro {
+  String nome;
+  String fabricante;
+  String modelo;
+
+  Carro({required this.nome, required this.fabricante, required this.modelo});
+}
+
+class SubttituloWidget extends StatelessWidget {
   final String label;
 
   const SubttituloWidget({super.key, required this.label});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: 14,
-        color: Colors.white70,
-      ),
-    );
+    return Text(label, style: TextStyle(fontSize: 14, color: Colors.white70));
   }
-  
 }
 
-class   Tarefa {
-  String titulo;
-  String descricao;
-  String data;
+class Tarefa {
+  String nome;
+  String fabricante;
+  String modelo;
 
-  Tarefa({
-    required this.titulo,
-    required this.descricao,
-    required this.data,
-  });
+  Tarefa({required this.nome, required this.fabricante, required this.modelo});
 }
