@@ -1,6 +1,7 @@
-import 'package:cadastro_de_carro/pages/tarefa_form_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+
+import '../models/tarefa_model.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title, required this.subtitulo});
@@ -12,18 +13,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Tarefa> tarefas = [];
+  List<Carro> carros = [];
 
   bool isLoading = false;
-  
-  get carros => null;
-  
-  VoidCallback? get _adicionarTarefa => null;
 
+  late TextEditingController controller;
   @override
   void initState() {
     _getCarros();
-
+    controller = TextEditingController();
     super.initState();
   }
 
@@ -56,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
+    controller.dispose();
     super.dispose();
   }
 
@@ -68,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Row(
           children: [
             Text(widget.title),
-            SizedBox(width: 8),
+             SizedBox(width: 8),
             SubttituloWidget(label: widget.subtitulo),
           ],
         ),
@@ -76,13 +75,57 @@ class _MyHomePageState extends State<MyHomePage> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
+              itemCount: carros.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: Icon(Icons.task),
+                  title: Text(carros[index].nome),
+                  subtitle: Text(carros[index].fabricante),
+                  trailing: Icon(Icons.arrow_right_alt_outlined),
+                );
+              },
+            ),
+
+         floatingActionButton: FloatingActionButton(,
+
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Digite uma tarefa',
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Digite uma tarefa',
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Digite uma tarefa',
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
               itemCount: tarefas.length,
               itemBuilder: (context, index) {
                 return ListTile(
                   leading: Icon(Icons.task),
-                  title: Text(tarefas[index].nome),
-                  subtitle: Text(tarefas[index].fabricante),
-                  trailing: Text(tarefas[index].modelo),
+                  title: Text(tarefas[index]),
                   trailing: Icon(Icons.arrow_right_alt_outlined),
                 );
               },
@@ -95,31 +138,20 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _adicionarCarro() {
-    Navigator.of(context)
-        .push(
-          MaterialPageRoute(
-            builder: (context) {
-              return TarefaFormPage();
-            },
-          ),
-        )
-        .then((_) {
-          setState(() {
-            carros.clear();
-            _getCarros();
-          });
-
-          // }
-          // var tarefa = Tarefa(descricao: descricaoTarefa, titulo: tituloTarefa, data: '');
-          // setState(() {
-          //   tarefas.add(tarefa);
-          // });
-          // controllerDescricao.clear();
-          // controllerTitulo.clear();
-        });
+  void _adicionarTarefa() {
+    var tarefaDigigtado = controller.text;
+    if (tarefaDigigtado.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(" Você precisa digitar uma tarefa! ")),
+      );
+      return;
+    }
+    setState(() {
+      tarefas.add(tarefaDigigtado);
+    });
   }
 }
+
 
 class   Carro {
   String nome;
