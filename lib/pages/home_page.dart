@@ -1,7 +1,7 @@
+import 'package:cadastro_de_carro/models/carro_model.dart';
+import 'package:cadastro_de_carro/pages/carro_form_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-
-import '../models/tarefa_model.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title, required this.subtitulo});
@@ -17,11 +17,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool isLoading = false;
 
-  late TextEditingController controller;
   @override
   void initState() {
     _getCarros();
-    controller = TextEditingController();
+
     super.initState();
   }
 
@@ -54,7 +53,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    controller.dispose();
     super.dispose();
   }
 
@@ -67,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Row(
           children: [
             Text(widget.title),
-             SizedBox(width: 8),
+            SizedBox(width: 8),
             SubttituloWidget(label: widget.subtitulo),
           ],
         ),
@@ -81,84 +79,33 @@ class _MyHomePageState extends State<MyHomePage> {
                   leading: Icon(Icons.task),
                   title: Text(carros[index].nome),
                   subtitle: Text(carros[index].fabricante),
-                  trailing: Icon(Icons.arrow_right_alt_outlined),
-                );
-              },
-            ),
-
-         floatingActionButton: FloatingActionButton(,
-
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Digite uma tarefa',
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Digite uma tarefa',
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Digite uma tarefa',
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: tarefas.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Icon(Icons.task),
-                  title: Text(tarefas[index]),
-                  trailing: Icon(Icons.arrow_right_alt_outlined),
+                  trailing: Text(carros[index].modelo),
                 );
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _adicionarTarefa,
-
+        onPressed: _adicionarCarro,
         child: Icon(Icons.add),
       ),
     );
   }
 
-  void _adicionarTarefa() {
-    var tarefaDigigtado = controller.text;
-    if (tarefaDigigtado.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(" Você precisa digitar uma tarefa! ")),
-      );
-      return;
-    }
-    setState(() {
-      tarefas.add(tarefaDigigtado);
-    });
+  void _adicionarCarro() {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) {
+              return CarroFormPage();
+            },
+          ),
+        )
+        .then((_) {
+          setState(() {
+            carros.clear();
+            _getCarros();
+          });
+        });
   }
-}
-
-
-class   Carro {
-  String nome;
-  String fabricante;
-  String modelo;
-
-  Carro({required this.nome, required this.fabricante, required this.modelo});
 }
 
 class SubttituloWidget extends StatelessWidget {
@@ -170,12 +117,4 @@ class SubttituloWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(label, style: TextStyle(fontSize: 14, color: Colors.white70));
   }
-}
-
-class Tarefa {
-  String nome;
-  String fabricante;
-  String modelo;
-
-  Tarefa({required this.nome, required this.fabricante, required this.modelo});
 }
