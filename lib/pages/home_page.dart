@@ -17,6 +17,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool isLoading = false;
 
+  VoidCallback? get onPressed => null;
+
   @override
   void initState() {
     _getCarros();
@@ -42,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var carro = Carro(
         nome: data['nome'],
         fabricante: data['fabricante'],
-        modelo: data['modelo'],
+        modelo: data['modelo'], id: '',
       );
       carros.add(carro);
     }
@@ -80,6 +82,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: Text(carros[index].nome),
                   subtitle: Text(carros[index].fabricante),
                   trailing: Text(carros[index].modelo),
+                  trailing: IconButton(
+                    icon: Icon(Icons.arrow_right_outlined),
+                    onPressed: () => _onPressedDeleteButton(carros[index].id),
+                  )
                 );
               },
             ),
@@ -118,3 +124,48 @@ class SubttituloWidget extends StatelessWidget {
     return Text(label, style: TextStyle(fontSize: 14, color: Colors.white70));
   }
 }
+ void _onPressedDeleteButton (String id) async {
+    showDialog(context: context, builder: (_){
+      return AlertDialog(
+        title: Text ("Deletar registro"),
+        content: Text ("Deseja deletar esse registro?"),
+        actions: [
+          TextButton(onPressed: () {
+            Navigator.of(context as BuildContext).pop();
+          }, child: Text("Cancelar"),),
+          ElevatedButton(onPressed: () {
+            _excluirTarefa(id);
+          }, child: Text("Deletar")),
+        ],
+      );
+     });
+  }
+  
+  // ignore: camel_case_types
+  class context {
+  static bool? get mounted => null;
+  }
+  void _excluirTarefa(String id) {
+    var dio = Dio(
+      BaseOptions(
+        connectTimeout: Duration(seconds: 30),
+        baseUrl: 'https://6912665e52a60f10c8218aa2.mockapi.io/api/v1',
+      ),
+    );
+    var response = dio.delete('/tarefa/$id');
+    if(response.statusCode == 200){
+    } else {
+      if(!context.mounted) return;
+      ScaffoldMessenger.of(
+        context)
+        .showSnackBar(SnackBar(content: Text("Tarefa excluída com sucesso!")),
+        
+      );
+    }
+  }
+}
+
+extension on Future<Response> {
+  get statusCode => null;
+}
+
