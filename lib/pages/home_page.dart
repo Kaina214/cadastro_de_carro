@@ -44,7 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
       var carro = Carro(
         nome: data['nome'],
         fabricante: data['fabricante'],
-        modelo: data['modelo'], id: '',
+        modelo: data['modelo'],
+        id: data['id'],
       );
       carros.add(carro);
     }
@@ -81,11 +82,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   leading: Icon(Icons.task),
                   title: Text(carros[index].nome),
                   subtitle: Text(carros[index].fabricante),
-                  trailing: Text(carros[index].modelo),
+
                   trailing: IconButton(
-                    icon: Icon(Icons.arrow_right_outlined),
+                    icon: Icon(Icons.delete),
                     onPressed: () => _onPressedDeleteButton(carros[index].id),
-                  )
+                  ),
                 );
               },
             ),
@@ -112,6 +113,50 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         });
   }
+
+  void _onPressedDeleteButton(String id) async {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text("Deletar registro"),
+          content: Text("Deseja deletar esse registro?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancelar"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _excluirCarro(id);
+              },
+              child: Text("Deletar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _excluirCarro(String id) async {
+    var dio = Dio(
+      BaseOptions(
+        connectTimeout: Duration(seconds: 30),
+        baseUrl: 'https://6912665e52a60f10c8218aa2.mockapi.io/api/v1',
+      ),
+    );
+    var response = await dio.delete('/carro/$id');
+    if (response.statusCode == 200) {
+    } else {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
+        context,
+      ).showSnackBar(SnackBar(content: Text("Carro excluído com sucesso!")));
+    }
+  }
 }
 
 class SubttituloWidget extends StatelessWidget {
@@ -124,48 +169,3 @@ class SubttituloWidget extends StatelessWidget {
     return Text(label, style: TextStyle(fontSize: 14, color: Colors.white70));
   }
 }
- void _onPressedDeleteButton (String id) async {
-    showDialog(context: context, builder: (_){
-      return AlertDialog(
-        title: Text ("Deletar registro"),
-        content: Text ("Deseja deletar esse registro?"),
-        actions: [
-          TextButton(onPressed: () {
-            Navigator.of(context as BuildContext).pop();
-          }, child: Text("Cancelar"),),
-          ElevatedButton(onPressed: () {
-            _excluirTarefa(id);
-          }, child: Text("Deletar")),
-        ],
-      );
-     });
-  }
-  
-  // ignore: camel_case_types
-  class context {
-  static bool? get mounted => null;
-  }
-  void _excluirTarefa(String id) {
-    var dio = Dio(
-      BaseOptions(
-        connectTimeout: Duration(seconds: 30),
-        baseUrl: 'https://6912665e52a60f10c8218aa2.mockapi.io/api/v1',
-      ),
-    );
-    var response = dio.delete('/tarefa/$id');
-    if(response.statusCode == 200){
-    } else {
-      if(!context.mounted) return;
-      ScaffoldMessenger.of(
-        context)
-        .showSnackBar(SnackBar(content: Text("Tarefa excluída com sucesso!")),
-        
-      );
-    }
-  }
-}
-
-extension on Future<Response> {
-  get statusCode => null;
-}
-
