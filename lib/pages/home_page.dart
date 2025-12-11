@@ -15,7 +15,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Carro> carros = [];
 
-  bool isLoading = false;
+  bool isLoading = true;
 
   VoidCallback? get onPressed => null;
 
@@ -34,11 +34,17 @@ class _MyHomePageState extends State<MyHomePage> {
     var dio = Dio(
       BaseOptions(
         connectTimeout: Duration(seconds: 30),
+      
         baseUrl: 'https://6912665e52a60f10c8218aa2.mockapi.io/api/v1',
       ),
     );
     var response = await dio.get('/carro');
+
+    await Future.delayed( Duration(seconds: 2));
+
     var listaData = response.data as List;
+
+    carros.clear();
 
     for (var data in listaData) {
       var carro = Carro(
@@ -87,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Icon(Icons.delete),
                     onPressed: () => _onPressedDeleteButton(carros[index].id),
                   ),
+                  onTap:() => _editarTarefa(carros[index].id,),
                 );
               },
             ),
@@ -102,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
         .push(
           MaterialPageRoute(
             builder: (context) {
-              return CarroFormPage();
+              return CarroFormPage(id: '',);
             },
           ),
         )
@@ -149,6 +156,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     var response = await dio.delete('/carro/$id');
     if (response.statusCode == 200) {
+      Navigator.of(context).pop();
+      _getCarros();
     } else {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
@@ -156,6 +165,17 @@ class _MyHomePageState extends State<MyHomePage> {
         context,
       ).showSnackBar(SnackBar(content: Text("Carro excluído com sucesso!")));
     }
+  }
+  
+  void _editarTarefa(String id) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx){
+          return CarroFormPage(id: id);
+        }
+      ),
+    );
   }
 }
 

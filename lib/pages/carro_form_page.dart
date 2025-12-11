@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class CarroFormPage extends StatefulWidget {
-  const CarroFormPage({super.key});
+  const CarroFormPage({super.key, required String id});
 
   @override
   State<CarroFormPage> createState() => _CarroFormPageState();
@@ -14,12 +14,37 @@ class _CarroFormPageState extends State<CarroFormPage> {
   late TextEditingController controllerModelo;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  bool isLoading = true;
+
   @override
   void initState() {
     controllerNome = TextEditingController();
     controllerFabricante = TextEditingController();
     controllerModelo = TextEditingController();
+
+    _iniciaForm();
+
     super.initState();
+  }
+   Future<void> _iniciaForm() async {
+      if (widget.id != null){
+        var dio = Dio(
+          BaseOptions(
+            connectTimeout: Duration(seconds: 30),
+            baseUrl: 'https://6912665e52a60f10c8218aa2.mockapi.io/api/v1',
+     
+          ),
+        );
+        var response = await dio.get('/carro/${widget.id}');
+
+        controllerFabricante.text = response.data['fabricante'];
+        controllerModelo.text = response.data['modelo'];
+        controllerNome.text = response.data['nome'];
+      }
+
+      setState(() {
+        isLoading = false;
+      });
   }
 
   @override
@@ -32,7 +57,7 @@ class _CarroFormPageState extends State<CarroFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Cadastrar Tarefa")),
+      appBar: AppBar(title: Text("Cadastrar Carro")),
       body: Form(
         key: formKey,
         child: Column(
@@ -122,16 +147,14 @@ class _CarroFormPageState extends State<CarroFormPage> {
       );
 
       // ignore: unused_local_variable
-      var response = await dio.post(
-        '/carro',
-        data: {
-          'nome': nomeCarro,
-          'fabricante': fabricanteCarro,
-          'modelo': modeloCarro,
-        },
-      );
+     var data = {'nome': nomeCarro, 'fabricante': fabricanteCarro, 'modelo': modeloCarro};
 
-      // ignore: use_build_context_synchronously
+      if (widget.id != null) {
+        await dio.put('/carro/${widget.id}', data: data);
+      } else {
+        await dio.post('/carro', data: data);
+      }
+
       if (context.mounted) Navigator.pop(context);
     }
   }
